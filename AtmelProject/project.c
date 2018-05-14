@@ -70,13 +70,13 @@ void splash_screen(void) {
 	move_cursor(10,10);
 	printf_P(PSTR("Frogger"));
 	move_cursor(10,12);
-	printf_P(PSTR("CSSE2010/7201 project by <your name here>"));
+	printf_P(PSTR("CSSE2010/7201 project by Max Miller (s44080118)"));
 	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
 	ledmatrix_clear();
 	while(1) {
-		set_scrolling_display_text("FROGGER", COLOUR_GREEN);
+		set_scrolling_display_text("FROGGER    S4480118", COLOUR_GREEN);
 		// Scroll the message until it has scrolled off the 
 		// display or a button is pushed
 		while(scroll_display()) {
