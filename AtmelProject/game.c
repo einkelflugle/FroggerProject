@@ -143,19 +143,50 @@ void move_frog_forward(void) {
 }
 
 void move_frog_backward(void) {
-	// Unimplemented
+	// Redraw the row the frog is currently on
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row-1, frog_column);
+	
+	// If the frog isn't in the bottom row, move the frog position backward
+	if (frog_row != 0) {
+		frog_row--;
+	}
+	// Show the frog
+	redraw_frog();
 }
 
 void move_frog_to_left(void) {
-	// Unimplemented
-	// Comments to aid implementation:
-	// Redraw the row the frog is currently on (i.e. without the frog), check 
-	// whether the frog will live or not, update the frog position (if the position 
-	// is not the leftmost column) then and redraw the frog.
+	// Redraw the row the frog is currently on
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row, frog_column-1);
+	
+	// If the frog isn't currently in the leftmost column, move the frog left
+	if (frog_column != 0) {
+		// Move the frog position left
+		frog_column--;
+	}
+	// Show the frog
+	redraw_frog();
 }
 
 void move_frog_to_right(void) {
-	// Unimplemented
+	// Redraw the row the frog is currently on
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row, frog_column+1);
+	
+	// If the frog isn't currently in the rightmost column, move the frog right
+	if (frog_column != 15) {
+		// Move the frog position right
+		frog_column++;
+	}
+	// Show the frog
+	redraw_frog();
 }
 
 uint8_t get_frog_row(void) {
