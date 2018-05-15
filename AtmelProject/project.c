@@ -116,6 +116,7 @@ void play_game(void) {
 	int8_t button;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
+	uint8_t is_paused = 0;
 	
 	// Get the current time and remember this as the last time the vehicles
 	// and logs were moved.
@@ -204,19 +205,21 @@ void play_game(void) {
 		// Process the input. 
 		if(button==3 || escape_sequence_char=='D' || serial_input=='L' || serial_input=='l') {
 			// Attempt to move left
-			move_frog_to_left();
+			// Only attempt to move if the game isn't paused
+			if (!is_paused) move_frog_to_left();
 		} else if(button==2 || escape_sequence_char=='A' || serial_input=='U' || serial_input=='u') {
 			// Attempt to move forward
-			move_frog_forward();
+			if (!is_paused) move_frog_forward();
 		} else if(button==1 || escape_sequence_char=='B' || serial_input=='D' || serial_input=='d') {
 			// Attempt to move down
-			move_frog_backward();
+			if (!is_paused) move_frog_backward();
 		} else if(button==0 || escape_sequence_char=='C' || serial_input=='R' || serial_input=='r') {
 			// Attempt to move right
-			move_frog_to_right();
+			if (!is_paused) move_frog_to_right();
 		} else if(serial_input == 'p' || serial_input == 'P') {
-			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
+			// Pause/unpause the game until 'p' or 'P' is
 			// pressed again
+			is_paused = ~is_paused;
 		} 
 		// else - invalid input or we're part way through an escape sequence -
 		// do nothing
@@ -227,23 +230,24 @@ void play_game(void) {
 			if (current_time >= last_move_times[0] + scroll_times[0]) {
 				// scroll_times[x] milliseconds have passed since the last time we moved
 				// this row - move it again and keep track of the time when we did this. 
-				scroll_vehicle_lane(0, 1);
+				// Only scroll if the game isn't paused
+				if (!is_paused) scroll_vehicle_lane(0, 1);
 				last_move_times[0] = current_time;
 			}
 			if (current_time >= last_move_times[1] + scroll_times[1]) {
-				scroll_vehicle_lane(1, -1);
+				if (!is_paused) scroll_vehicle_lane(1, -1);
 				last_move_times[1] = current_time;
 			}
 			if (current_time >= last_move_times[2] + scroll_times[2]) {
-				scroll_vehicle_lane(2, 1);
+				if (!is_paused) scroll_vehicle_lane(2, 1);
 				last_move_times[2] = current_time;
 			}
 			if (current_time >= last_move_times[3] + scroll_times[3]) {
-				scroll_river_channel(0, -1);
+				if (!is_paused) scroll_river_channel(0, -1);
 				last_move_times[3] = current_time;
 			}
 			if (current_time >= last_move_times[4] + scroll_times[4]) {
-				scroll_river_channel(1, 1);
+				if (!is_paused) scroll_river_channel(1, 1);
 				last_move_times[4] = current_time;
 			}
 		}
