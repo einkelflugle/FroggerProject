@@ -109,7 +109,10 @@ void new_game(void) {
 }
 
 void play_game(void) {
-	uint32_t current_time, last_move_time;
+	uint32_t current_time;
+	uint32_t last_move_times[5]; // 5 unique scrolling speeds
+	// Each speed has a time between scrolls in milliseconds
+	uint32_t scroll_times[5] = {1000, 1150, 750, 1300, 900};
 	int8_t button;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
@@ -117,7 +120,9 @@ void play_game(void) {
 	// Get the current time and remember this as the last time the vehicles
 	// and logs were moved.
 	current_time = get_current_time();
-	last_move_time = current_time;
+	for (int i = 0; i < 5; i++) {
+		last_move_times[i] = current_time;
+	}
 	
 	// We play the game while we have lives left and we haven't filled up the 
 	// far riverbank
@@ -217,16 +222,30 @@ void play_game(void) {
 		// do nothing
 		
 		current_time = get_current_time();
-		if(!is_frog_dead() && current_time >= last_move_time + 1000) {
-			// 1000ms (1 second) has passed since the last time we moved
-			// the vehicles and logs - move them again and keep track of
-			// the time when we did this. 
-			scroll_vehicle_lane(0, 1);
-			scroll_vehicle_lane(1, -1);
-			scroll_vehicle_lane(2, 1);
-			scroll_river_channel(0, -1);
-			scroll_river_channel(1, 1);
-			last_move_time = current_time;
+		if(!is_frog_dead()) { 
+			// Only check for scroll times if the frog is still alive
+			if (current_time >= last_move_times[0] + scroll_times[0]) {
+				// scroll_times[x] milliseconds have passed since the last time we moved
+				// this row - move it again and keep track of the time when we did this. 
+				scroll_vehicle_lane(0, 1);
+				last_move_times[0] = current_time;
+			}
+			if (current_time >= last_move_times[1] + scroll_times[1]) {
+				scroll_vehicle_lane(1, -1);
+				last_move_times[1] = current_time;
+			}
+			if (current_time >= last_move_times[2] + scroll_times[2]) {
+				scroll_vehicle_lane(2, 1);
+				last_move_times[2] = current_time;
+			}
+			if (current_time >= last_move_times[3] + scroll_times[3]) {
+				scroll_river_channel(0, -1);
+				last_move_times[3] = current_time;
+			}
+			if (current_time >= last_move_times[4] + scroll_times[4]) {
+				scroll_river_channel(1, 1);
+				last_move_times[4] = current_time;
+			}
 		}
 	}
 	// We get here if we have run out of lives or the riverbank is full
