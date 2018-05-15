@@ -60,6 +60,10 @@ void initialise_hardware(void) {
 	
 	init_timer0();
 	
+	// Initialise the LEDs used for displaying the number of lives remaining
+	// LEDs are on the upper 4 bits of Port A
+	DDRA |= 0xF0;
+	
 	// Turn on global interrupts
 	sei();
 }
@@ -115,9 +119,34 @@ void play_game(void) {
 	current_time = get_current_time();
 	last_move_time = current_time;
 	
-	// We play the game while the frog is alive and we haven't filled up the 
+	// We play the game while we have lives left and we haven't filled up the 
 	// far riverbank
-	while(!is_frog_dead() && !is_riverbank_full()) {
+	while(get_lives_remaining() && !is_riverbank_full()) {
+		if (is_frog_dead()) {
+			// Can the player continue playing?
+			if (get_lives_remaining() > 1) {
+ 				move_cursor(10,14);
+ 				printf_P(PSTR("YOU DIED"));
+ 				move_cursor(10,15);
+ 				printf_P(PSTR("Press a button to spend a life"));
+				// Wait until player acknowledges
+				while(button_pushed() == NO_BUTTON_PUSHED) {
+ 					; // wait
+ 				}
+				 
+				// Clear both lines
+				move_cursor(10,14);
+				clear_to_end_of_line();
+				move_cursor(10,15);
+				clear_to_end_of_line();
+			}
+			
+			// Decrement the number of lives
+			set_lives(get_lives_remaining() - 1);
+			
+			// Frog is dead, put new frog in start position
+			put_frog_in_start_position();
+		}
 		if(!is_frog_dead() && frog_has_reached_riverbank()) {
 			// Frog reached the other side successfully but the
 			// riverbank isn't full, put a new frog at the start
@@ -200,7 +229,7 @@ void play_game(void) {
 			last_move_time = current_time;
 		}
 	}
-	// We get here if the frog is dead or the riverbank is full
+	// We get here if we have run out of lives or the riverbank is full
 	// The game is over.
 	
 	// Game has been completed successfully, add 10 to score for last frog

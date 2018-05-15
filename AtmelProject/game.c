@@ -8,6 +8,7 @@
 #include "ledmatrix.h"
 #include "pixel_colour.h"
 #include "score.h"
+#include <avr/io.h>
 #include <stdint.h>
 
 ///////////////////////////////// Global variables //////////////////////
@@ -17,6 +18,11 @@ static int8_t frog_row;
 static int8_t frog_column;
 // Maximum (largest) row the frog has reached in this life
 static int8_t frog_max_row;
+
+// Number of lives the player currently has
+static int8_t num_lives;
+// Maximum lives possible to have at any time
+#define MAX_LIVES 4
 
 // Boolean flag to indicate whether the frog is alive or dead
 static uint8_t frog_dead;
@@ -105,6 +111,9 @@ void initialise_game(void) {
 	// Initial riverbank pattern
 	riverbank = RIVERBANK;
 	riverbank_status = RIVERBANK;
+	
+	// Set number of lives to maximum value
+	set_lives(MAX_LIVES);
 	
 	redraw_whole_display();
 	
@@ -221,6 +230,20 @@ uint8_t frog_has_reached_riverbank(void) {
 
 uint8_t is_frog_dead(void) {
 	return frog_dead;
+}
+
+uint8_t get_lives_remaining(void) {
+	return num_lives;
+}
+
+void set_lives(uint8_t new_num_lives) {
+	num_lives = new_num_lives;
+	// Clear Port A
+	PORTA = 0;
+	// LEDs for lives use upper 4 bits of Port A
+	for (int8_t i = 0; i < num_lives; ++i) {
+		PORTA |= (1<<(i+4));
+	}
 }
 
 // Scroll the given lane of traffic. (lane value must be 0 to 2)

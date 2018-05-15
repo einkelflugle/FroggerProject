@@ -69,6 +69,12 @@ uint8_t frog_has_reached_riverbank(void);
 // Check whether the frog is alive or dead
 uint8_t is_frog_dead(void);
 
+// How many lives does the player have left
+uint8_t get_lives_remaining(void);
+
+// Sets the number of lives to the value passed
+void set_lives(uint8_t new_num_lives);
+
 /////////////////////// UPDATE FUNCTIONS /////////////////////////////////////
 // Scroll the given lane of traffic in the given direction. 
 // Check is_frog_dead() to determine whether the frog was killed or not.
