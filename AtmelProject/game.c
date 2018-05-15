@@ -7,6 +7,7 @@
 #include "game.h"
 #include "ledmatrix.h"
 #include "pixel_colour.h"
+#include "score.h"
 #include <stdint.h>
 
 ///////////////////////////////// Global variables //////////////////////
@@ -135,6 +136,9 @@ void move_frog_forward(void) {
 	// We do this whether the frog is alive or not. 
 	frog_row++;
 	redraw_frog();
+
+	// If the frog isn't dead, add 1 to the score
+	add_to_score(1);
 	
 	// If the frog has ended up successfully in row 7 - add it to the riverbank_status flag
 	if(!frog_dead && frog_row == RIVERBANK_ROW) {

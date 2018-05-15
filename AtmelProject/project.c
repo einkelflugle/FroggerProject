@@ -122,6 +122,8 @@ void play_game(void) {
 			// Frog reached the other side successfully but the
 			// riverbank isn't full, put a new frog at the start
 			put_frog_in_start_position();
+			// Add 10 to score, frog reached other side successfully
+			add_to_score(10);
 		}
 		
 		// Check for input - which could be a button push or serial input.
@@ -200,6 +202,12 @@ void play_game(void) {
 	}
 	// We get here if the frog is dead or the riverbank is full
 	// The game is over.
+	
+	// Game has been completed successfully, add 10 to score for last frog
+	// reaching the other side.
+	if (is_riverbank_full() && !is_frog_dead()) {
+		add_to_score(10);
+	}
 }
 
 void handle_game_over() {
