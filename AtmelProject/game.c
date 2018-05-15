@@ -15,6 +15,8 @@
 // numbers are from 0 to 7; column numbers are from 0 to 15. 
 static int8_t frog_row;
 static int8_t frog_column;
+// Maximum (largest) row the frog has reached in this life
+static int8_t frog_max_row;
 
 // Boolean flag to indicate whether the frog is alive or dead
 static uint8_t frog_dead;
@@ -116,6 +118,9 @@ void put_frog_in_start_position(void) {
 	frog_row = 0;
 	frog_column = 7;
 	
+	// Frog starts at the bottom row
+	frog_max_row = 0;
+	
 	// Frog is initially alive
 	frog_dead = 0;
 	
@@ -137,8 +142,13 @@ void move_frog_forward(void) {
 	frog_row++;
 	redraw_frog();
 
-	// If the frog isn't dead, add 1 to the score
-	add_to_score(1);
+	// If the frog isn't dead and it has reached a new max row, add 1 to the score
+	if (!frog_dead && frog_row > frog_max_row) {
+		add_to_score(1);
+	}
+	
+	// Update the max row the frog has reached this life
+	frog_max_row = (frog_row >= frog_max_row) ? frog_row : frog_max_row;
 	
 	// If the frog has ended up successfully in row 7 - add it to the riverbank_status flag
 	if(!frog_dead && frog_row == RIVERBANK_ROW) {
