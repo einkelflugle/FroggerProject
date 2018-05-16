@@ -102,6 +102,12 @@ void new_game(void) {
 	// Initialise the score
 	init_score();
 	
+	// Set number of lives to maximum value
+	init_lives();
+	
+	// Set the level to initial value
+	init_level();
+	
 	// Clear a button push or serial input if any are waiting
 	// (The cast to void means the return value is ignored.)
 	(void)button_pushed();
@@ -125,9 +131,8 @@ void play_game(void) {
 		last_move_times[i] = current_time;
 	}
 	
-	// We play the game while we have lives left and we haven't filled up the 
-	// far riverbank
-	while(get_lives_remaining() && !is_riverbank_full()) {
+	// We play the game while we have lives left
+	while(get_lives_remaining()) {
 		if (is_frog_dead()) {
 			// Can the player continue playing?
 			if (get_lives_remaining() > 1) {
@@ -159,6 +164,19 @@ void play_game(void) {
 			put_frog_in_start_position();
 			// Add 10 to score, frog reached other side successfully
 			add_to_score(10);
+		}
+		
+		// We have completed a level, progress to the next one
+		if (is_riverbank_full()) {
+			// Shift the LED matrix left
+			for (int i = 0; i < MATRIX_NUM_COLUMNS; i++) {
+				ledmatrix_shift_display_left();
+				_delay_ms(70);
+			}
+			// Increment the level number
+			set_level(get_level() + 1);
+			// Reset the game state
+			initialise_game();
 		}
 		
 		// Check for input - which could be a button push or serial input.
@@ -252,7 +270,7 @@ void play_game(void) {
 			}
 		}
 	}
-	// We get here if we have run out of lives or the riverbank is full
+	// We get here if we have run out of lives
 	// The game is over.
 	
 	// Game has been completed successfully, add 10 to score for last frog

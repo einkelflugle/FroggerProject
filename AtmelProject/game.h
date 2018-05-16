@@ -72,8 +72,20 @@ uint8_t is_frog_dead(void);
 // How many lives does the player have left
 uint8_t get_lives_remaining(void);
 
+// Sets the number of lives to the max allowed lives
+void init_lives(void);
+
 // Sets the number of lives to the value passed
 void set_lives(uint8_t new_num_lives);
+
+// Which level is currently being played
+uint8_t get_level(void);
+
+// Sets the level to the initial value (1)
+void init_level(void);
+
+// Sets the current game level to the value passed
+void set_level(uint8_t new_level);
 
 /////////////////////// UPDATE FUNCTIONS /////////////////////////////////////
 // Scroll the given lane of traffic in the given direction. 

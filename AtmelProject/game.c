@@ -8,8 +8,11 @@
 #include "ledmatrix.h"
 #include "pixel_colour.h"
 #include "score.h"
+#include "terminalio.h"
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include <stdint.h>
+#include <stdio.h>
 
 ///////////////////////////////// Global variables //////////////////////
 // frog_row and frog_column store the current position of the frog. Row 
@@ -23,6 +26,9 @@ static int8_t frog_max_row;
 static int8_t num_lives;
 // Maximum lives possible to have at any time
 #define MAX_LIVES 4
+
+// Current game level, starts at 1
+static int8_t level;
 
 // Boolean flag to indicate whether the frog is alive or dead
 static uint8_t frog_dead;
@@ -111,9 +117,6 @@ void initialise_game(void) {
 	// Initial riverbank pattern
 	riverbank = RIVERBANK;
 	riverbank_status = RIVERBANK;
-	
-	// Set number of lives to maximum value
-	set_lives(MAX_LIVES);
 	
 	redraw_whole_display();
 	
@@ -236,6 +239,10 @@ uint8_t get_lives_remaining(void) {
 	return num_lives;
 }
 
+void init_lives(void) {
+	set_lives(MAX_LIVES);
+}
+
 void set_lives(uint8_t new_num_lives) {
 	num_lives = new_num_lives;
 	// Clear Port A
@@ -244,6 +251,20 @@ void set_lives(uint8_t new_num_lives) {
 	for (int8_t i = 0; i < num_lives; ++i) {
 		PORTA |= (1<<(i+4));
 	}
+}
+
+uint8_t get_level(void) {
+	return level;
+}
+
+void init_level(void) {
+	set_level(1);
+}
+
+void set_level(uint8_t new_level) {
+	level = new_level;
+	move_cursor(1, 2);
+	printf_P(PSTR("Level: %4d"), level);
 }
 
 // Scroll the given lane of traffic. (lane value must be 0 to 2)
