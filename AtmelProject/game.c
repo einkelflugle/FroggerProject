@@ -38,10 +38,25 @@ static uint8_t frog_dead;
 // Index 0 to 2 corresponds to lanes 1 to 3 respectively. Lanes 1 and 3
 // will move to the right; lane 2 will move to the left.
 #define LANE_DATA_WIDTH 64	// must be power of 2
-static uint64_t lane_data[3] = {
-		0b1100001100011000110000011001100011000011000110001100000110011000,
-		0b0011100000111000011100000111000011100001110001110000111000011100,
-		0b0000111100001111000011110000111100001111000001111100001111000111
+static uint64_t lane_data[3][3] = {
+		// Level pattern A
+		{
+			0b1100001100011000110000011001100011000011000110001100000110011000,
+			0b0011100000111000011100000111000011100001110001110000111000011100,
+			0b0000111100001111000011110000111100001111000001111100001111000111
+		},
+		// Level pattern B
+		{
+			0b0001000110000011001100010000011000100000010000011000110000100010,
+			0b1110000001110000001110000001110000001110000001110000001110000001,
+			0b0011110001110001111000110000111000011110000110000111001111000011
+		},
+		// Level pattern C
+		{
+			0b1111100011111000001111100001111100000011111000111110001111100000,
+			0b0001110001110001110001110001110001110001110001110001110001110000,
+			0b0011000001100011000011001100001100011000001100011001100110000110
+		}
 };
 		
 // Log data - 32 bits for each log channel which we loop continuously.
@@ -49,9 +64,22 @@ static uint64_t lane_data[3] = {
 // Index 0 to 1 corresponds to rows 5 and 6 respectively. Row 5 will move
 // to the left; row 6 will move to the right
 #define LOG_DATA_WIDTH 32 // must be power of 2
-static uint32_t log_data[2] = {
+static uint32_t log_data[3][2] = {
+	// Level pattern A
+	{
 		0b11110001100111000111100011111000,
 		0b11100110111101100001110110011100
+	},
+	// Level pattern B
+	{
+		0b00111000011110011100011000011110,
+		0b11100011011100001110001100111100
+	},
+	// Level pattern C
+	{
+		0b00111001111000001110000110000111,
+		0b11000011110000111000000011100011
+	}
 };
 
 // Lane positions. The bit position (0 to 63) of the lane_data above that is
@@ -70,8 +98,16 @@ static int8_t log_position[2];
 #define COLOUR_EDGES		COLOUR_LIGHT_GREEN
 #define COLOUR_WATER		COLOUR_BLACK
 #define COLOUR_ROAD			COLOUR_BLACK
-#define COLOUR_LOGS			COLOUR_ORANGE
-PixelColour vehicle_colours[3] = { COLOUR_RED, COLOUR_YELLOW, COLOUR_RED }; // by lane
+PixelColour log_colours[3] = {
+	COLOUR_ORANGE, // Level pattern A
+	COLOUR_RED, // Level pattern B
+	COLOUR_YELLOW // Level pattern C
+};
+PixelColour vehicle_colours[3][3] = { // by lane
+	{ COLOUR_RED, COLOUR_YELLOW, COLOUR_RED }, // Level pattern A
+	{ COLOUR_LIGHT_YELLOW, COLOUR_ORANGE, COLOUR_LIGHT_YELLOW }, // Level pattern B
+	{ COLOUR_LIGHT_ORANGE, COLOUR_RED, COLOUR_LIGHT_ORANGE } // Level pattern C
+};
 
 // Rows
 #define START_ROW 0	// row position where the frog starts
@@ -85,7 +121,9 @@ PixelColour vehicle_colours[3] = { COLOUR_RED, COLOUR_YELLOW, COLOUR_RED }; // b
 
 // River bank pattern. Note that the least significant bit in this
 // pattern (RHS) corresponds to column 0 on the display (LHS).
-#define RIVERBANK 0b1101110111011101
+#define RIVERBANK_A 0b1101110111011101
+#define RIVERBANK_B 0b1011101101111011
+#define RIVERBANK_C 0b1010111111110101
 static uint16_t riverbank;
 // riverbank_status is a bit pattern similar to riverbank but will
 // only have zeroes where there are unoccupied holes. When this is all 1's
@@ -96,6 +134,10 @@ static uint16_t riverbank_status;
 /////////////////////////////// Function Prototypes for Helper Functions ///////
 // These functions are defined after the public functions. Comments are with the
 // definitions.
+static uint16_t get_level_riverbank(void);
+static PixelColour get_log_colour(void);
+static PixelColour get_vehicle_colour(uint8_t lane_index);
+static uint8_t get_level_data_index(void);
 static uint8_t will_frog_die_at_position(int8_t row, int8_t column);
 static void redraw_whole_display(void);
 static void redraw_row(uint8_t row);
@@ -115,8 +157,8 @@ void initialise_game(void) {
 	log_position[0] = log_position[1] = 0;
 	
 	// Initial riverbank pattern
-	riverbank = RIVERBANK;
-	riverbank_status = RIVERBANK;
+	riverbank = get_level_riverbank();
+	riverbank_status = get_level_riverbank();
 	
 	redraw_whole_display();
 	
@@ -244,7 +286,8 @@ void init_lives(void) {
 }
 
 void set_lives(uint8_t new_num_lives) {
-	num_lives = new_num_lives;
+	// Ensure we don't set lives greater than the maximum
+	num_lives = new_num_lives > MAX_LIVES ? MAX_LIVES : new_num_lives;
 	// Clear Port A
 	PORTA = 0;
 	// LEDs for lives use upper 4 bits of Port A
@@ -332,6 +375,32 @@ void scroll_river_channel(uint8_t channel, int8_t direction) {
 
 /////////////////////////////// Private (Helper) Functions /////////////////////
 
+static uint8_t get_level_data_index(void) {
+	return (level - 1) % 3; // 3 unique level patterns, index can be 0, 1 or 2
+}
+
+static uint16_t get_level_riverbank(void) {
+	switch (get_level_data_index()) {
+	case 0:
+		return RIVERBANK_A;
+	case 1:
+		return RIVERBANK_B;
+	case 2:
+		return RIVERBANK_C;
+	default:
+		return RIVERBANK_A;
+	}
+}
+
+// Log colour depends on current level
+static PixelColour get_log_colour(void) {
+	return log_colours[get_level_data_index()];
+}
+
+static PixelColour get_vehicle_colour(uint8_t lane_index) {
+	return vehicle_colours[get_level_data_index()][lane_index];
+}
+
 // Return 1 if the frog will die at the given position. 
 // Return 0 if the frog CAN jump to the given position (i.e. it is not occupied by 
 // a vehicle), or, if in the river, then it IS occupied by a log, or, if the final
@@ -354,7 +423,7 @@ static uint8_t will_frog_die_at_position(int8_t row, int8_t column) {
 			if(bit_position > LANE_DATA_WIDTH) {
 				bit_position -= LANE_DATA_WIDTH;
 			}
-			return (lane_data[lane] >> bit_position) & 1;
+			return (lane_data[get_level_data_index()][lane] >> bit_position) & 1;
 			break;
 		case 5:
 		case 6:
@@ -363,7 +432,7 @@ static uint8_t will_frog_die_at_position(int8_t row, int8_t column) {
 			if(bit_position > LOG_DATA_WIDTH) {
 				bit_position -= LOG_DATA_WIDTH;
 			}
-			return !((log_data[channel] >> bit_position) & 1);
+			return !((log_data[get_level_data_index()][channel] >> bit_position) & 1);
 			break;
 		case 7:
 			return (riverbank_status >> column) & 1;
@@ -439,8 +508,8 @@ static void redraw_traffic_lane(uint8_t lane) {
 	uint8_t i;
 	uint8_t bit_position = lane_position[lane];
 	for(i=0; i<=15; i++) {
-		if((lane_data[lane] >> bit_position) & 1) {
-			row_display_data[i] = vehicle_colours[lane];
+		if((lane_data[get_level_data_index()][lane] >> bit_position) & 1) {
+			row_display_data[i] = get_vehicle_colour(lane);
 			} else {
 			row_display_data[i] = COLOUR_ROAD;
 		}
@@ -459,8 +528,8 @@ static void redraw_river_channel(uint8_t channel) {
 	uint8_t i;
 	uint8_t bit_position = log_position[channel];
 	for(i=0; i<=15; i++) {
-		if((log_data[channel] >> bit_position) & 1) {
-			row_display_data[i] = COLOUR_LOGS;
+		if((log_data[get_level_data_index()][channel] >> bit_position) & 1) {
+			row_display_data[i] = get_log_colour();
 			} else {
 			row_display_data[i] = COLOUR_WATER;
 		}

@@ -93,9 +93,6 @@ void splash_screen(void) {
 }
 
 void new_game(void) {
-	// Initialise the game and display
-	initialise_game();
-	
 	// Clear the serial terminal
 	clear_terminal();
 	
@@ -107,6 +104,9 @@ void new_game(void) {
 	
 	// Set the level to initial value
 	init_level();
+	
+	// Initialise the game and display
+	initialise_game();
 	
 	// Clear a button push or serial input if any are waiting
 	// (The cast to void means the return value is ignored.)
@@ -133,31 +133,6 @@ void play_game(void) {
 	
 	// We play the game while we have lives left
 	while(get_lives_remaining()) {
-		if (is_frog_dead()) {
-			// Can the player continue playing?
-			if (get_lives_remaining() > 1) {
- 				move_cursor(10,14);
- 				printf_P(PSTR("YOU DIED"));
- 				move_cursor(10,15);
- 				printf_P(PSTR("Press a button to spend a life"));
-				// Wait until player acknowledges
-				while(button_pushed() == NO_BUTTON_PUSHED) {
- 					; // wait
- 				}
-				 
-				// Clear both lines
-				move_cursor(10,14);
-				clear_to_end_of_line();
-				move_cursor(10,15);
-				clear_to_end_of_line();
-			}
-			
-			// Decrement the number of lives
-			set_lives(get_lives_remaining() - 1);
-			
-			// Frog is dead, put new frog in start position
-			put_frog_in_start_position();
-		}
 		if(!is_frog_dead() && frog_has_reached_riverbank()) {
 			// Frog reached the other side successfully but the
 			// riverbank isn't full, put a new frog at the start
@@ -175,8 +150,38 @@ void play_game(void) {
 			}
 			// Increment the level number
 			set_level(get_level() + 1);
+			// Restore a life (function handles checking if greater than max)
+			set_lives(get_lives_remaining() + 1);
 			// Reset the game state
 			initialise_game();
+		}
+		
+		if (is_frog_dead()) {
+			// Can the player continue playing?
+			if (get_lives_remaining() > 1) {
+				move_cursor(10,14);
+				printf_P(PSTR("YOU DIED"));
+				move_cursor(10,15);
+				printf_P(PSTR("Press a button to spend a life"));
+				// Wait until player acknowledges
+				while(button_pushed() == NO_BUTTON_PUSHED) {
+					; // wait
+				}
+				(void) button_pushed();
+				clear_serial_input_buffer();
+				
+				// Clear both lines
+				move_cursor(10,14);
+				clear_to_end_of_line();
+				move_cursor(10,15);
+				clear_to_end_of_line();
+			}
+			
+			// Decrement the number of lives
+			set_lives(get_lives_remaining() - 1);
+			
+			// Frog is dead, put new frog in start position
+			put_frog_in_start_position();
 		}
 		
 		// Check for input - which could be a button push or serial input.
@@ -242,29 +247,31 @@ void play_game(void) {
 		// else - invalid input or we're part way through an escape sequence -
 		// do nothing
 		
+		// Level speed multiplier = x/4 + 3/4 where x is the current level
+		double level_speed_multiplier = (get_level() / 4.0) + (3.0/4.0);
 		current_time = get_current_time();
 		if(!is_frog_dead()) { 
 			// Only check for scroll times if the frog is still alive
-			if (current_time >= last_move_times[0] + scroll_times[0]) {
+			if (current_time >= last_move_times[0] + scroll_times[0] / level_speed_multiplier) {
 				// scroll_times[x] milliseconds have passed since the last time we moved
 				// this row - move it again and keep track of the time when we did this. 
 				// Only scroll if the game isn't paused
 				if (!is_paused) scroll_vehicle_lane(0, 1);
 				last_move_times[0] = current_time;
 			}
-			if (current_time >= last_move_times[1] + scroll_times[1]) {
+			if (current_time >= last_move_times[1] + scroll_times[1] / level_speed_multiplier) {
 				if (!is_paused) scroll_vehicle_lane(1, -1);
 				last_move_times[1] = current_time;
 			}
-			if (current_time >= last_move_times[2] + scroll_times[2]) {
+			if (current_time >= last_move_times[2] + scroll_times[2] / level_speed_multiplier) {
 				if (!is_paused) scroll_vehicle_lane(2, 1);
 				last_move_times[2] = current_time;
 			}
-			if (current_time >= last_move_times[3] + scroll_times[3]) {
+			if (current_time >= last_move_times[3] + scroll_times[3] / level_speed_multiplier) {
 				if (!is_paused) scroll_river_channel(0, -1);
 				last_move_times[3] = current_time;
 			}
-			if (current_time >= last_move_times[4] + scroll_times[4]) {
+			if (current_time >= last_move_times[4] + scroll_times[4] / level_speed_multiplier) {
 				if (!is_paused) scroll_river_channel(1, 1);
 				last_move_times[4] = current_time;
 			}
