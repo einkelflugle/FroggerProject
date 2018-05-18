@@ -420,7 +420,7 @@ static uint8_t will_frog_die_at_position(int8_t row, int8_t column) {
 		case 3:
 			lane = row - 1;
 			bit_position = lane_position[lane] + column;
-			if(bit_position > LANE_DATA_WIDTH) {
+			if(bit_position >= LANE_DATA_WIDTH) {
 				bit_position -= LANE_DATA_WIDTH;
 			}
 			return (lane_data[get_level_data_index()][lane] >> bit_position) & 1;
@@ -429,7 +429,7 @@ static uint8_t will_frog_die_at_position(int8_t row, int8_t column) {
 		case 6:
 			channel = row - 5;
 			bit_position = log_position[channel] + column;
-			if(bit_position > LOG_DATA_WIDTH) {
+			if(bit_position >= LOG_DATA_WIDTH) {
 				bit_position -= LOG_DATA_WIDTH;
 			}
 			return !((log_data[get_level_data_index()][channel] >> bit_position) & 1);
