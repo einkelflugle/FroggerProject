@@ -128,6 +128,10 @@ void play_game(void) {
 	// Each speed has a time between scrolls in milliseconds
 	uint32_t scroll_times[5] = {1000, 1150, 750, 1300, 900};
 	int8_t button;
+	int8_t last_button_pushed = -1;
+	uint32_t last_button_pushed_at = 0; // time in ms
+	// Time between simulated button presses when holding down a button
+	uint16_t button_hold_delay = 200;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
 	uint8_t is_paused = 0;
@@ -231,6 +235,10 @@ void play_game(void) {
 					characters_into_escape_sequence = 0;
 				}
 			}
+		} else {
+			// A button was pushed
+			last_button_pushed = button;
+			last_button_pushed_at = get_current_time();
 		}
 		
 		// Process the input. 
@@ -261,6 +269,39 @@ void play_game(void) {
 		} 
 		// else - invalid input or we're part way through an escape sequence -
 		// do nothing
+		
+		// Find whether a button is currently being held down
+		int8_t button_held_down;
+		if ((PINB & 0x0F) == 0b00000001) {
+			// B0 is being pushed
+			button_held_down = 0;
+		} else if ((PINB & 0x0F) == 0b00000010) {
+			// B1 is being pushed
+			button_held_down = 1;
+		} else if ((PINB & 0x0F) == 0b00000100) {
+			// B2 is being pushed
+			button_held_down = 2;
+		} else if ((PINB & 0x0F) == 0b00001000) {
+			// B3 is being pushed
+			button_held_down = 3;
+		} else {
+			// No button is being pushed
+			button_held_down = -2;
+		}
+		
+		current_time = get_current_time();
+		if (last_button_pushed == button_held_down && current_time > last_button_pushed_at + button_hold_delay) {
+			if (button_held_down == 3) {
+				if (!is_paused) move_frog_to_left();
+			} else if (button_held_down == 2) {
+				if (!is_paused) move_frog_forward();
+			} else if (button_held_down == 1) {
+				if (!is_paused) move_frog_backward();
+			} else if (button_held_down == 0) {
+				if (!is_paused) move_frog_to_right();
+			}
+			last_button_pushed_at = current_time;
+		}
 		
 		// Level speed multiplier = x/4 + 3/4 where x is the current level
 		double level_speed_multiplier = (get_level() / 4.0) + (3.0/4.0);
