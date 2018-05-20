@@ -187,16 +187,16 @@ void play_game(void) {
 				clear_to_end_of_line();
 				move_cursor(10,15);
 				clear_to_end_of_line();
+				
+				// Frog is dead, put new frog in start position
+				put_frog_in_start_position();
+				
+				// Reset begin_life_time
+				begin_life_time = get_current_time();
 			}
 			
 			// Decrement the number of lives
 			set_lives(get_lives_remaining() - 1);
-			
-			// Frog is dead, put new frog in start position
-			put_frog_in_start_position();
-			
-			// Reset begin_life_time
-			begin_life_time = get_current_time();
 		}
 		
 		// Check for input - which could be a button push or serial input.
