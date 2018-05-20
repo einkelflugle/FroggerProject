@@ -171,14 +171,7 @@ void play_game(void) {
 		if (is_frog_dead() || (get_current_time() > begin_life_time + time_limit && !is_paused)) {
 			// Can the player continue playing?
 			if (get_lives_remaining() > 1) {
-				move_cursor(10,14);
-				printf_P(PSTR("YOU DIED"));
-				move_cursor(10,15);
-				printf_P(PSTR("Press a button to spend a life"));
-				// Wait until player acknowledges
-				while(button_pushed() == NO_BUTTON_PUSHED) {
-					; // wait
-				}
+				_delay_ms(1000);
 				(void) button_pushed();
 				clear_serial_input_buffer();
 				
