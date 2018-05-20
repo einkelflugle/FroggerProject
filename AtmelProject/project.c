@@ -17,6 +17,7 @@
 #include "serialio.h"
 #include "terminalio.h"
 #include "score.h"
+#include "sevenseg.h"
 #include "timer0.h"
 #include "game.h"
 
@@ -63,6 +64,9 @@ void initialise_hardware(void) {
 	// Initialise the LEDs used for displaying the number of lives remaining
 	// LEDs are on the upper 4 bits of Port A
 	DDRA |= 0xF0;
+	
+	// Initialise the Seven Segment Display for showing the time left this life
+	init_sevenseg();
 	
 	// Turn on global interrupts
 	sei();
@@ -115,7 +119,11 @@ void new_game(void) {
 }
 
 void play_game(void) {
-	uint32_t current_time;
+	uint32_t current_time = get_current_time();
+	// Time limit for each frog in ms
+	uint32_t time_limit = 18000;
+	// Time at which the current frog began its life
+	uint32_t begin_life_time = current_time;
 	uint32_t last_move_times[5]; // 5 unique scrolling speeds
 	// Each speed has a time between scrolls in milliseconds
 	uint32_t scroll_times[5] = {1000, 1150, 750, 1300, 900};
@@ -123,10 +131,9 @@ void play_game(void) {
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
 	uint8_t is_paused = 0;
+	uint32_t time_pause_began = 0;
 	
-	// Get the current time and remember this as the last time the vehicles
-	// and logs were moved.
-	current_time = get_current_time();
+	// Remember the current time as the last time the vehicles and logs were moved.
 	for (int i = 0; i < 5; i++) {
 		last_move_times[i] = current_time;
 	}
@@ -139,6 +146,8 @@ void play_game(void) {
 			put_frog_in_start_position();
 			// Add 10 to score, frog reached other side successfully
 			add_to_score(10);
+			// Reset begin_life_time to current time
+			begin_life_time = get_current_time();
 		}
 		
 		// We have completed a level, progress to the next one
@@ -154,9 +163,12 @@ void play_game(void) {
 			set_lives(get_lives_remaining() + 1);
 			// Reset the game state
 			initialise_game();
+			// Reset begin_life_time to current time
+			begin_life_time = get_current_time();
 		}
 		
-		if (is_frog_dead()) {
+		// Is the frog dead or the time limit has been reached while unpaused
+		if (is_frog_dead() || (get_current_time() > begin_life_time + time_limit && !is_paused)) {
 			// Can the player continue playing?
 			if (get_lives_remaining() > 1) {
 				move_cursor(10,14);
@@ -182,6 +194,9 @@ void play_game(void) {
 			
 			// Frog is dead, put new frog in start position
 			put_frog_in_start_position();
+			
+			// Reset begin_life_time
+			begin_life_time = get_current_time();
 		}
 		
 		// Check for input - which could be a button push or serial input.
@@ -240,6 +255,13 @@ void play_game(void) {
 			// Attempt to move right
 			if (!is_paused) move_frog_to_right();
 		} else if(serial_input == 'p' || serial_input == 'P') {
+			// If we are pausing, store the current time to add to begin_life_time after unpausing
+			if (!is_paused) {
+				time_pause_began = get_current_time();
+			} else {
+				// If we are unpausing, add the time paused to begin_life_time
+				begin_life_time += (get_current_time() - time_pause_began);
+			}
 			// Pause/unpause the game until 'p' or 'P' is
 			// pressed again
 			is_paused = ~is_paused;
@@ -276,6 +298,17 @@ void play_game(void) {
 				last_move_times[4] = current_time;
 			}
 		}
+		
+		// Update the seven segment display with the time remaining this life
+		uint32_t time_remaining;
+		if (is_paused) {
+			// Time remaining = [time limit] - [time spent up to pause started]
+			time_remaining = time_limit - (time_pause_began - begin_life_time);
+		} else {
+			// Time remaining = [time limit] - [time spent so far]
+			time_remaining = time_limit - (get_current_time() - begin_life_time);
+		}
+		display_ssd(time_remaining);
 	}
 	// We get here if we have run out of lives
 	// The game is over.
