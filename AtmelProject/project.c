@@ -18,6 +18,7 @@
 #include "terminalio.h"
 #include "score.h"
 #include "sevenseg.h"
+#include "sound_effects.h"
 #include "timer0.h"
 #include "game.h"
 
@@ -67,6 +68,9 @@ void initialise_hardware(void) {
 	
 	// Initialise the Seven Segment Display for showing the time left this life
 	init_sevenseg();
+	
+	// Initialise sound effects generated via timer/counter 1 and the piezo buzzer
+	init_sound_effects();
 	
 	// Turn on global interrupts
 	sei();
@@ -145,7 +149,10 @@ void play_game(void) {
 	while(get_lives_remaining()) {
 		if(!is_frog_dead() && frog_has_reached_riverbank()) {
 			// Frog reached the other side successfully but the
-			// riverbank isn't full, put a new frog at the start
+			// riverbank isn't full
+			// Play a sound
+			play_sound_reached_riverbank();
+			// Put a new frog at the start
 			put_frog_in_start_position();
 			// Add 10 to score, frog reached other side successfully
 			add_to_score(10);
@@ -155,10 +162,16 @@ void play_game(void) {
 		
 		// We have completed a level, progress to the next one
 		if (is_riverbank_full()) {
+			// Play the new level sound
+			play_sound_new_level();
 			// Shift the LED matrix left
 			for (int i = 0; i < MATRIX_NUM_COLUMNS; i++) {
 				ledmatrix_shift_display_left();
 				_delay_ms(70);
+				if (i == 9) {
+					// Stop sound after 10x70=700ms
+					stop_sound();
+				}
 			}
 			// Increment the level number
 			set_level(get_level() + 1);
@@ -174,7 +187,9 @@ void play_game(void) {
 		if (is_frog_dead() || (get_current_time() > begin_life_time + time_limit && !is_paused)) {
 			// Can the player continue playing?
 			if (get_lives_remaining() > 1) {
+				play_sound_death();
 				_delay_ms(1000);
+				stop_sound();
 				(void) button_pushed();
 				clear_serial_input_buffer();
 				
@@ -244,15 +259,19 @@ void play_game(void) {
 			// Attempt to move left
 			// Only attempt to move if the game isn't paused
 			if (!is_paused) move_frog_to_left();
+			play_sound_frog_move();
 		} else if(button==2 || escape_sequence_char=='A' || serial_input=='U' || serial_input=='u') {
 			// Attempt to move forward
 			if (!is_paused) move_frog_forward();
+			play_sound_frog_move();
 		} else if(button==1 || escape_sequence_char=='B' || serial_input=='D' || serial_input=='d') {
 			// Attempt to move down
 			if (!is_paused) move_frog_backward();
+			play_sound_frog_move();
 		} else if(button==0 || escape_sequence_char=='C' || serial_input=='R' || serial_input=='r') {
 			// Attempt to move right
 			if (!is_paused) move_frog_to_right();
+			play_sound_frog_move();
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// If we are pausing, store the current time to add to begin_life_time after unpausing
 			if (!is_paused) {
@@ -291,12 +310,16 @@ void play_game(void) {
 		if (current_time > last_button_pushed_at + button_hold_delay) {
 			if (button_held_down == 3) {
 				if (!is_paused) move_frog_to_left();
+				play_sound_frog_move();
 			} else if (button_held_down == 2) {
 				if (!is_paused) move_frog_forward();
+				play_sound_frog_move();
 			} else if (button_held_down == 1) {
 				if (!is_paused) move_frog_backward();
+				play_sound_frog_move();
 			} else if (button_held_down == 0) {
 				if (!is_paused) move_frog_to_right();
+				play_sound_frog_move();
 			}
 			last_button_pushed_at = current_time;
 		}
@@ -341,6 +364,9 @@ void play_game(void) {
 			time_remaining = time_limit - (get_current_time() - begin_life_time);
 		}
 		display_ssd(time_remaining);
+		
+		// Update the sound effects queue
+		update_sound_effects();
 	}
 	// We get here if we have run out of lives
 	// The game is over.

@@ -179,6 +179,12 @@
     <Compile Include="serialio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sound_effects.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sound_effects.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="spi.c">
       <SubType>compile</SubType>
     </Compile>
