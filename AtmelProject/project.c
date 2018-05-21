@@ -128,7 +128,6 @@ void play_game(void) {
 	// Each speed has a time between scrolls in milliseconds
 	uint32_t scroll_times[5] = {1000, 1150, 750, 1300, 900};
 	int8_t button;
-	int8_t last_button_pushed = -1;
 	uint32_t last_button_pushed_at = 0; // time in ms
 	// Time between simulated button presses when holding down a button
 	uint16_t button_hold_delay = 200;
@@ -237,7 +236,6 @@ void play_game(void) {
 			}
 		} else {
 			// A button was pushed
-			last_button_pushed = button;
 			last_button_pushed_at = get_current_time();
 		}
 		
@@ -290,7 +288,7 @@ void play_game(void) {
 		}
 		
 		current_time = get_current_time();
-		if (last_button_pushed == button_held_down && current_time > last_button_pushed_at + button_hold_delay) {
+		if (current_time > last_button_pushed_at + button_hold_delay) {
 			if (button_held_down == 3) {
 				if (!is_paused) move_frog_to_left();
 			} else if (button_held_down == 2) {
