@@ -18,7 +18,7 @@
 #include "terminalio.h"
 #include "timer0.h"
 
-#define SOUND_QUEUE_SIZE 5
+#define SOUND_QUEUE_SIZE 10
 uint16_t sound_queue_frequencies[SOUND_QUEUE_SIZE];
 uint16_t sound_queue_durations[SOUND_QUEUE_SIZE];
 uint32_t sound_queue_begin_times[SOUND_QUEUE_SIZE];
@@ -162,12 +162,47 @@ void play_sound_game_over(void) {
 	
 	sound_queue_frequencies[sound_queue_length] = 800;
 	sound_queue_durations[sound_queue_length] = 100;
-	sound_queue_begin_times[sound_queue_length] = get_current_time() + 300;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 500;
 	sound_queue_length += 1;
 	
 	sound_queue_frequencies[sound_queue_length] = 600;
-	sound_queue_durations[sound_queue_length] = 200;
-	sound_queue_begin_times[sound_queue_length] = get_current_time() + 600;
+	sound_queue_durations[sound_queue_length] = 300;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 1000;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 800;
+	sound_queue_durations[sound_queue_length] = 250;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 1300;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 1000;
+	sound_queue_durations[sound_queue_length] = 250;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 1550;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 800;
+	sound_queue_durations[sound_queue_length] = 250;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 1800;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 600;
+	sound_queue_durations[sound_queue_length] = 250;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 2050;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 800;
+	sound_queue_durations[sound_queue_length] = 250;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 2300;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 600;
+	sound_queue_durations[sound_queue_length] = 300;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 2550;
+	sound_queue_length += 1;
+	
+	sound_queue_frequencies[sound_queue_length] = 400;
+	sound_queue_durations[sound_queue_length] = 500;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 2850;
 	sound_queue_length += 1;
 }
 
