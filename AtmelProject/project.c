@@ -167,8 +167,8 @@ void play_game(void) {
 			// Shift the LED matrix left
 			for (int i = 0; i < MATRIX_NUM_COLUMNS; i++) {
 				ledmatrix_shift_display_left();
-				_delay_ms(70);
 				update_sound_effects();
+				_delay_ms(70);
 			}
 			// Increment the level number
 			set_level(get_level() + 1);
@@ -186,8 +186,8 @@ void play_game(void) {
 			if (get_lives_remaining() > 1) {
 				play_sound_death();
 				for (int i = 0; i < 10; i++) {
-					_delay_ms(100); // Wait for 1000ms
 					update_sound_effects();
+					_delay_ms(100); // Wait for 1000ms
 				}
 				stop_sound();
 				(void) button_pushed();
