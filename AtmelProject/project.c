@@ -32,6 +32,7 @@ void splash_screen(void);
 void new_game(void);
 void play_game(void);
 void handle_game_over(void);
+static void draw_splash_frog();
 
 // ASCII code for Escape character
 #define ESCAPE_CHAR 27
@@ -79,10 +80,12 @@ void initialise_hardware(void) {
 void splash_screen(void) {
 	// Clear terminal screen and output a message
 	clear_terminal();
-	move_cursor(10,10);
+	move_cursor(10,2);
 	printf_P(PSTR("Frogger"));
-	move_cursor(10,12);
+	move_cursor(10,4);
 	printf_P(PSTR("CSSE2010/7201 project by Max Miller (s44080118)"));
+	
+	draw_splash_frog();
 	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
@@ -391,4 +394,195 @@ void handle_game_over() {
 		update_sound_effects(); // and wait
 	}
 	
+}
+
+static void draw_splash_frog(void) {
+	uint8_t canvas_x = 10;
+	uint8_t canvas_y = 6;
+	uint8_t x = 12; // Top left corner x
+	uint8_t y = 7; // Top right corner y
+	// Draw bounding canvas
+	for (int i = 0; i < 21; i++) {
+		set_display_attribute(FG_CYAN);
+		draw_vertical_line(canvas_x + i, canvas_y, 23);
+	}
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y, x + 3, x + 5);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y, x + 11, x + 13);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 1, x + 2, x + 2);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 1, x + 3, x + 5);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 1, x + 6, x + 6);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 1, x + 10, x + 10);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 1, x + 11, x + 13);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 1, x + 14, x + 14);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 2, x + 1, x + 1);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 2, x + 2, x + 2);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 2, x + 3, x + 4);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 2, x + 5, x + 6);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 2, x + 7, x + 9);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 2, x + 10, x + 11);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 2, x + 12, x + 13);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 2, x + 14, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 2, x + 15, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 3, x + 1, x + 1);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 3, x + 2, x + 2);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 3, x + 3, x + 4);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 3, x + 5, x + 6);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 3, x + 7, x + 9);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 3, x + 10, x + 11);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 3, x + 12, x + 13);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 3, x + 14, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 3, x + 15, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 4, x + 1, x + 1);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 4, x + 2, x + 6);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 4, x + 7, x + 9);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 4, x + 10, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 4, x + 15, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 5, x + 2, x + 2);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 5, x + 3, x + 5);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 5, x + 6, x + 10);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 5, x + 11, x + 13);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 5, x + 14, x + 14);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 6, x + 1, x + 1);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 6, x + 2, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 6, x + 15, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 7, x + 0, x + 0);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 7, x + 1, x + 15);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 7, x + 3, x + 3);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 7, x + 13, x + 13);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 7, x + 16, x + 16);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 8, x + 0, x + 0);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 8, x + 1, x + 15);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 8, x + 4, x + 12);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 8, x + 16, x + 16);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 9, x + 1, x + 1);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 9, x + 2, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 9, x + 15, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 10, x + 2, x + 4);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 10, x + 5, x + 11);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 10, x + 12, x + 14);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 11, x + 3, x + 3);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 11, x + 4, x + 12);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 11, x + 5, x + 6);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 11, x + 10, x + 11);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 11, x + 13, x + 13);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 12, x + 1, x + 2);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 12, x + 3, x + 13);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 12, x + 8, x + 8);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 12, x + 14, x + 15);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 13, x + 0, x + 0);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 13, x + 1, x + 15);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 13, x + 7, x + 9);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 13, x + 2, x + 2);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 13, x + 14, x + 14);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 13, x + 16, x + 16);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 0, x + 0);
+	set_display_attribute(FG_GREEN);
+	draw_horizontal_line(y + 14, x + 1, x + 15);
+	set_display_attribute(FG_WHITE);
+	draw_horizontal_line(y + 14, x + 7, x + 9);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 4, x + 4);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 6, x + 6);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 10, x + 10);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 12, x + 12);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 14, x + 16, x + 16);
+	
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 15, x + 1, x + 3);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 15, x + 5, x + 5);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 15, x + 7, x + 9);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 15, x + 11, x + 11);
+	set_display_attribute(FG_BLACK);
+	draw_horizontal_line(y + 15, x + 13, x + 15);
 }
