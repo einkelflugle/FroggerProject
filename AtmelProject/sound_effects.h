@@ -15,6 +15,8 @@ void update_sound_effects(void);
 
 void play_sound_death(void);
 
+void play_sound_game_over(void);
+
 void play_sound_new_level(void);
 
 void play_sound_reached_riverbank(void);

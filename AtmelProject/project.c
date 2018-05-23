@@ -386,6 +386,7 @@ void handle_game_over() {
 	printf_P(PSTR("GAME OVER"));
 	move_cursor(10,15);
 	printf_P(PSTR("Press a button to start again"));
+	play_sound_game_over();
 	while(button_pushed() == NO_BUTTON_PUSHED) {
 		update_sound_effects(); // and wait
 	}
