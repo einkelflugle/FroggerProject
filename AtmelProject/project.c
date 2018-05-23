@@ -145,9 +145,6 @@ void play_game(void) {
 		last_move_times[i] = current_time;
 	}
 	
-	(void)button_pushed();
-	clear_serial_input_buffer();
-	
 	// We play the game while we have lives left
 	while(get_lives_remaining()) {
 		if(!is_frog_dead() && frog_has_reached_riverbank()) {
@@ -310,21 +307,24 @@ void play_game(void) {
 		}
 		
 		current_time = get_current_time();
-		if (current_time > last_button_pushed_at + button_hold_delay) {
-			if (button_held_down == 3) {
-				if (!is_paused) move_frog_to_left();
-				play_sound_frog_move();
-			} else if (button_held_down == 2) {
-				if (!is_paused) move_frog_forward();
-				play_sound_frog_move();
-			} else if (button_held_down == 1) {
-				if (!is_paused) move_frog_backward();
-				play_sound_frog_move();
-			} else if (button_held_down == 0) {
-				if (!is_paused) move_frog_to_right();
-				play_sound_frog_move();
+		if (last_button_pushed_at && button_held_down != -2) {
+			// Avoids registering movement just after game begins
+			if (current_time > last_button_pushed_at + button_hold_delay) {
+				if (button_held_down == 3) {
+					if (!is_paused) move_frog_to_left();
+					play_sound_frog_move();
+					} else if (button_held_down == 2) {
+					if (!is_paused) move_frog_forward();
+					play_sound_frog_move();
+					} else if (button_held_down == 1) {
+					if (!is_paused) move_frog_backward();
+					play_sound_frog_move();
+					} else if (button_held_down == 0) {
+					if (!is_paused) move_frog_to_right();
+					play_sound_frog_move();
+				}
+				last_button_pushed_at = current_time;
 			}
-			last_button_pushed_at = current_time;
 		}
 		
 		// Level speed multiplier = x/4 + 3/4 where x is the current level
