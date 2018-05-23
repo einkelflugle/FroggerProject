@@ -145,6 +145,9 @@ void play_game(void) {
 		last_move_times[i] = current_time;
 	}
 	
+	(void)button_pushed();
+	clear_serial_input_buffer();
+	
 	// We play the game while we have lives left
 	while(get_lives_remaining()) {
 		if(!is_frog_dead() && frog_has_reached_riverbank()) {
@@ -168,10 +171,7 @@ void play_game(void) {
 			for (int i = 0; i < MATRIX_NUM_COLUMNS; i++) {
 				ledmatrix_shift_display_left();
 				_delay_ms(70);
-				if (i == 9) {
-					// Stop sound after 10x70=700ms
-					stop_sound();
-				}
+				update_sound_effects();
 			}
 			// Increment the level number
 			set_level(get_level() + 1);
@@ -188,7 +188,10 @@ void play_game(void) {
 			// Can the player continue playing?
 			if (get_lives_remaining() > 1) {
 				play_sound_death();
-				_delay_ms(1000);
+				for (int i = 0; i < 10; i++) {
+					_delay_ms(100); // Wait for 1000ms
+					update_sound_effects();
+				}
 				stop_sound();
 				(void) button_pushed();
 				clear_serial_input_buffer();
@@ -384,7 +387,7 @@ void handle_game_over() {
 	move_cursor(10,15);
 	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == NO_BUTTON_PUSHED) {
-		; // wait
+		update_sound_effects(); // and wait
 	}
 	
 }

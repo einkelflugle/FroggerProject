@@ -117,27 +117,37 @@ void update_sound_effects(void) {
 }
 
 void play_sound_new_level(void) {
-	play_sound(2000);
+	sound_queue_length = 0; // Clear the current sound queue
+	
+	sound_queue_frequencies[sound_queue_length] = 2000;
+	sound_queue_durations[sound_queue_length] = 500;
+	sound_queue_begin_times[sound_queue_length] = get_current_time();
+	sound_queue_length += 1;
 }
 
 void play_sound_death(void) {
-	play_sound(100);
+	sound_queue_frequencies[sound_queue_length] = 100;
+	sound_queue_durations[sound_queue_length] = 300;
+	sound_queue_begin_times[sound_queue_length] = get_current_time();
+	sound_queue_length += 1;
 }
 
 void play_sound_reached_riverbank(void) {
+	sound_queue_length = 0;
+	
 	sound_queue_frequencies[sound_queue_length] = 500;
 	sound_queue_durations[sound_queue_length] = 200;
-	sound_queue_begin_times[sound_queue_length] = get_current_time() + 100;
+	sound_queue_begin_times[sound_queue_length] = get_current_time();
 	sound_queue_length += 1;
 	
 	sound_queue_frequencies[sound_queue_length] = 500;
 	sound_queue_durations[sound_queue_length] = 100;
-	sound_queue_begin_times[sound_queue_length] = get_current_time() + 500;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 400;
 	sound_queue_length += 1;
 	
 	sound_queue_frequencies[sound_queue_length] = 2000;
 	sound_queue_durations[sound_queue_length] = 500;
-	sound_queue_begin_times[sound_queue_length] = get_current_time() + 600;
+	sound_queue_begin_times[sound_queue_length] = get_current_time() + 500;
 	sound_queue_length += 1;
 	
 	update_sound_effects();
