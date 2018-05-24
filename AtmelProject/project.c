@@ -14,6 +14,7 @@
 #include "ledmatrix.h"
 #include "scrolling_char_display.h"
 #include "buttons.h"
+#include "highscores.h"
 #include "serialio.h"
 #include "terminalio.h"
 #include "score.h"
@@ -81,11 +82,14 @@ void splash_screen(void) {
 	// Clear terminal screen and output a message
 	clear_terminal();
 	move_cursor(10,2);
+	set_display_attribute(TERM_BRIGHT);
 	printf_P(PSTR("Frogger"));
 	move_cursor(10,4);
+	set_display_attribute(TERM_RESET);
 	printf_P(PSTR("CSSE2010/7201 project by Max Miller (s44080118)"));
 	
 	draw_splash_frog();
+	draw_high_scores();
 	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
@@ -385,9 +389,11 @@ void play_game(void) {
 }
 
 void handle_game_over() {
-	move_cursor(10,14);
-	printf_P(PSTR("GAME OVER"));
-	move_cursor(10,15);
+	move_cursor(1,2);
+	set_display_attribute(TERM_BRIGHT);
+	printf_P(PSTR("Game Over"));
+	move_cursor(10,4);
+	set_display_attribute(TERM_RESET);
 	printf_P(PSTR("Press a button to start again"));
 	play_sound_game_over();
 	while(button_pushed() == NO_BUTTON_PUSHED) {
