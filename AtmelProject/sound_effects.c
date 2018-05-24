@@ -88,6 +88,10 @@ void stop_sound(void) {
 	TCCR1A = 0; // Reverts OC1A/OC1B to normal port operation, disconnecting the buzzer
 }
 
+uint8_t is_playing_sound(void) {
+	return (sound_queue_length > 0);
+}
+
 /* Gets called every time the main game loop runs */
 void update_sound_effects(void) {
 	uint32_t current_time = get_current_time();

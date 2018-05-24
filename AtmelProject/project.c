@@ -389,15 +389,65 @@ void play_game(void) {
 }
 
 void handle_game_over() {
-	move_cursor(1,2);
+	move_cursor(13,2);
 	set_display_attribute(TERM_BRIGHT);
 	printf_P(PSTR("Game Over"));
-	move_cursor(10,4);
 	set_display_attribute(TERM_RESET);
-	printf_P(PSTR("Press a button to start again"));
+	
 	play_sound_game_over();
+	while (is_playing_sound()) {
+		update_sound_effects();
+	}
+	
+	// If a top 5 score was achieved, prompt the user for their name
+	if (get_score() > 1) {
+		uint8_t name[10] = {0};
+		uint8_t chars = 0;
+		uint8_t return_pressed = 0; // bool
+		
+		move_cursor(13, 3);
+		printf_P(PSTR("Enter name: "));
+		while (!return_pressed) {
+			uint8_t c;
+			scanf_P(PSTR("%c"), &c);
+			// Check for return (enter)
+			if (c == '\n') {
+				return_pressed = 1;
+				continue;
+			}
+			// Check for backspace (ASCII for delete/backspace)
+			if ((c == 8 || c == 127) && chars > 0) {
+				// Clear all input then redraw it with last char removed
+				move_cursor(13 + 12, 3);
+				clear_to_end_of_line();
+				move_cursor(13 + 12, 3);
+				name[chars - 1] = 0;
+				chars--;
+				printf_P(PSTR("%s"), name);
+			}
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ') {
+				if (chars == 10) {
+					continue;
+				}
+				printf_P(PSTR("%c"), c);
+				name[chars] = c;
+				chars++;
+			}
+		}
+		// Save name and score to EEPROM
+		for (int i = 0; i < 10; i++) {
+			printf_P(PSTR("\n`%c`"), name[i]);
+		}
+	}
+	
+	// Cancel any button pressed or serial input
+	(void) button_pushed();
+	clear_serial_input_buffer();
+	
+	move_cursor(13,4);
+	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == NO_BUTTON_PUSHED) {
-		update_sound_effects(); // and wait
+		; // wait
 	}
 	
 }
