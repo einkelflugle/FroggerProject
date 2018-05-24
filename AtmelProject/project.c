@@ -202,8 +202,8 @@ void play_game(void) {
 				move_cursor(10,15);
 				clear_to_end_of_line();
 				
-				// Frog is dead, put new frog in start position
-				put_frog_in_start_position();
+				// Reset the game state (puts new frog at start position)
+				initialise_game();
 				
 				// Reset begin_life_time
 				begin_life_time = get_current_time();
