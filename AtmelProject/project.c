@@ -89,7 +89,7 @@ void splash_screen(void) {
 	printf_P(PSTR("CSSE2010/7201 project by Max Miller (s44080118)"));
 	
 	draw_splash_frog();
-	draw_high_scores();
+	draw_high_scores(33, 6);
 	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
@@ -413,6 +413,9 @@ void handle_game_over() {
 			scanf_P(PSTR("%c"), &c);
 			// Check for return (enter)
 			if (c == '\n') {
+				if (chars == 0) {
+					continue; // Name can't be blank
+				}
 				return_pressed = 1;
 				continue;
 			}
@@ -436,11 +439,10 @@ void handle_game_over() {
 			}
 		}
 		// Save name and score to EEPROM
-		for (int i = 0; i < 10; i++) {
-			printf_P(PSTR("\n`%c`"), name[i]);
-		}
 		save_high_score(score_achieved, name);
 	}
+
+	draw_high_scores(13, 6);
 	
 	// Cancel any button pressed or serial input
 	(void) button_pushed();

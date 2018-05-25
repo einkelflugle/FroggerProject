@@ -37,14 +37,8 @@ uint8_t names[5][10];
 uint8_t slots_used;
 
 uint8_t is_high_score(uint16_t score) {
-	// Is there a score higher than the one passed?
-	uint8_t higher_score_found = 0; // bool
-	for (int i = 0; i < 5; i++) {
-		if (scores[i] > score) {
-			higher_score_found = 1;
-		}
-	}
-	return !higher_score_found;
+	// Is the given score higher than the lowest saved score?
+	return (score > scores[4]); // Scores are sorted in descending order
 }
 
 void save_high_score(uint16_t score, uint8_t *name) {
@@ -56,43 +50,84 @@ void save_high_score(uint16_t score, uint8_t *name) {
 			eeprom_write_byte(&signature_one, SIGNATURE);
 			eeprom_write_word(&score_one, score);
 			eeprom_write_block(name, &name_one, 10);
+			return;
 		}
-		else if (eeprom_read_byte(&signature_two) != SIGNATURE) {
+		if (eeprom_read_byte(&signature_two) != SIGNATURE) {
 			eeprom_write_byte(&signature_two, SIGNATURE);
 			eeprom_write_word(&score_two, score);
 			eeprom_write_block(name, &name_two, 10);
+			return;
 		}
-		else if (eeprom_read_byte(&signature_three) != SIGNATURE) {
+		if (eeprom_read_byte(&signature_three) != SIGNATURE) {
 			eeprom_write_byte(&signature_three, SIGNATURE);
 			eeprom_write_word(&score_three, score);
 			eeprom_write_block(name, &name_three, 10);
+			return;
 		}
-		else if (eeprom_read_byte(&signature_four) != SIGNATURE) {
+		if (eeprom_read_byte(&signature_four) != SIGNATURE) {
 			eeprom_write_byte(&signature_four, SIGNATURE);
 			eeprom_write_word(&score_four, score);
 			eeprom_write_block(name, &name_four, 10);
+			return;
 		}
-		else if (eeprom_read_byte(&signature_five) != SIGNATURE) {
+		if (eeprom_read_byte(&signature_five) != SIGNATURE) {
 			eeprom_write_byte(&signature_five, SIGNATURE);
 			eeprom_write_word(&score_five, score);
 			eeprom_write_block(name, &name_five, 10);
+			return;
+		}
+	} else {
+		/* All 5 slots are used, find the lowest one and
+		 * replace it with the new score
+		 */
+		uint16_t lowest_score;
+		
+		lowest_score = scores[4]; // Scores are sorted in descending order
+		if (eeprom_read_word(&score_one) == lowest_score) {
+			// Score in slot one is the lowest score, replace it
+			eeprom_write_word(&score_one, score);
+			eeprom_write_block(name, &name_one, 10);
+			return;
+		}
+		if (eeprom_read_word(&score_two) == lowest_score) {
+			eeprom_write_word(&score_two, score);
+			eeprom_write_block(name, &name_two, 10);
+			return;
+		}
+		if (eeprom_read_word(&score_three) == lowest_score) {
+			eeprom_write_word(&score_three, score);
+			eeprom_write_block(name, &name_three, 10);
+			return;
+		}
+		if (eeprom_read_word(&score_four) == lowest_score) {
+			eeprom_write_word(&score_four, score);
+			eeprom_write_block(name, &name_four, 10);
+			return;
+		}
+		if (eeprom_read_word(&score_five) == lowest_score) {
+			eeprom_write_word(&score_five, score);
+			eeprom_write_block(name, &name_five, 10);
+			return;
 		}
 	}
 }
 
-void draw_high_scores(void) {
-	move_cursor(33, 6);
+void draw_high_scores(uint8_t x, uint8_t y) {
+	move_cursor(x, y);
 	set_display_attribute(TERM_BRIGHT);
 	printf_P(PSTR("%s"), "High Scores");
 	set_display_attribute(TERM_RESET);
 	
 	if (eeprom_read_byte(&main_signature) != SIGNATURE) {
-		move_cursor(33, 8);
+		move_cursor(x, y + 2);
 		printf_P(PSTR("%s"), "No high scores yet.");
 		// Initialise high scores by writing signature value to EEPROM
 		eeprom_write_byte(&main_signature, 'J');
 		return;
 	}
+	
+	// Reset slots used
+	slots_used = 0;
 	
 	// Check for signature
 	if (eeprom_read_byte(&signature_one) == SIGNATURE) {
@@ -151,7 +186,7 @@ void draw_high_scores(void) {
 
 	// Display the names and scores to the high scores area
 	for (int i = 0; i < slots_used; i++) {
-		move_cursor(33, 8 + i);
+		move_cursor(x, y + 2 + i);
 		printf_P(PSTR("%d. %d - %s"), i + 1, scores[i], names[i]);
 	}
 }
