@@ -400,7 +400,8 @@ void handle_game_over() {
 	}
 	
 	// If a top 5 score was achieved, prompt the user for their name
-	if (get_score() > 1) {
+	uint16_t score_achieved = get_score();
+	if (is_high_score(score_achieved)) {
 		uint8_t name[10] = {0};
 		uint8_t chars = 0;
 		uint8_t return_pressed = 0; // bool
@@ -438,6 +439,7 @@ void handle_game_over() {
 		for (int i = 0; i < 10; i++) {
 			printf_P(PSTR("\n`%c`"), name[i]);
 		}
+		save_high_score(score_achieved, name);
 	}
 	
 	// Cancel any button pressed or serial input
