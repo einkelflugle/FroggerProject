@@ -10,7 +10,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-uint32_t score;
+uint16_t score;
 
 void init_score(void) {
 	score = 0;
@@ -25,6 +25,6 @@ void add_to_score(uint16_t value) {
 	printf_P(PSTR("Score: %4d"), score);
 }
 
-uint32_t get_score(void) {
+uint16_t get_score(void) {
 	return score;
 }

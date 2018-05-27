@@ -11,6 +11,6 @@
 
 void init_score(void);
 void add_to_score(uint16_t value);
-uint32_t get_score(void);
+uint16_t get_score(void);
 
 #endif /* SCORE_H_ */

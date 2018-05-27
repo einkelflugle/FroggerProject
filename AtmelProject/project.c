@@ -14,6 +14,7 @@
 #include "ledmatrix.h"
 #include "scrolling_char_display.h"
 #include "buttons.h"
+#include "highscores.h"
 #include "serialio.h"
 #include "terminalio.h"
 #include "score.h"
@@ -81,11 +82,14 @@ void splash_screen(void) {
 	// Clear terminal screen and output a message
 	clear_terminal();
 	move_cursor(10,2);
+	set_display_attribute(TERM_BRIGHT);
 	printf_P(PSTR("Frogger"));
 	move_cursor(10,4);
+	set_display_attribute(TERM_RESET);
 	printf_P(PSTR("CSSE2010/7201 project by Max Miller (s44080118)"));
 	
 	draw_splash_frog();
+	draw_high_scores(33, 6);
 	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
@@ -385,13 +389,69 @@ void play_game(void) {
 }
 
 void handle_game_over() {
-	move_cursor(10,14);
-	printf_P(PSTR("GAME OVER"));
-	move_cursor(10,15);
-	printf_P(PSTR("Press a button to start again"));
+	move_cursor(13,2);
+	set_display_attribute(TERM_BRIGHT);
+	printf_P(PSTR("Game Over"));
+	set_display_attribute(TERM_RESET);
+	
 	play_sound_game_over();
+	while (is_playing_sound()) {
+		update_sound_effects();
+	}
+	
+	// If a top 5 score was achieved, prompt the user for their name
+	uint16_t score_achieved = get_score();
+	if (is_high_score(score_achieved)) {
+		uint8_t name[10] = {0};
+		uint8_t chars = 0;
+		uint8_t return_pressed = 0; // bool
+		
+		move_cursor(13, 3);
+		printf_P(PSTR("Enter name: "));
+		while (!return_pressed) {
+			uint8_t c;
+			scanf_P(PSTR("%c"), &c);
+			// Check for return (enter)
+			if (c == '\n') {
+				if (chars == 0) {
+					continue; // Name can't be blank
+				}
+				return_pressed = 1;
+				continue;
+			}
+			// Check for backspace (ASCII for delete/backspace)
+			if ((c == 8 || c == 127) && chars > 0) {
+				// Clear all input then redraw it with last char removed
+				move_cursor(13 + 12, 3);
+				clear_to_end_of_line();
+				move_cursor(13 + 12, 3);
+				name[chars - 1] = 0;
+				chars--;
+				printf_P(PSTR("%s"), name);
+			}
+			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ') {
+				if (chars == 10) {
+					continue;
+				}
+				printf_P(PSTR("%c"), c);
+				name[chars] = c;
+				chars++;
+			}
+		}
+		// Save name and score to EEPROM
+		save_high_score(score_achieved, name);
+	}
+
+	draw_high_scores(13, 6);
+	
+	// Cancel any button pressed or serial input
+	(void) button_pushed();
+	clear_serial_input_buffer();
+	
+	move_cursor(13,4);
+	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == NO_BUTTON_PUSHED) {
-		update_sound_effects(); // and wait
+		; // wait
 	}
 	
 }
