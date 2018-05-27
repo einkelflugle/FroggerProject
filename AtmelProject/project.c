@@ -15,6 +15,7 @@
 #include "scrolling_char_display.h"
 #include "buttons.h"
 #include "highscores.h"
+#include "joystick.h"
 #include "serialio.h"
 #include "terminalio.h"
 #include "score.h"
@@ -73,6 +74,9 @@ void initialise_hardware(void) {
 	
 	// Initialise sound effects generated via timer/counter 1 and the piezo buzzer
 	init_sound_effects();
+	
+	// Initialise the joystick for controlling the frog
+	init_joystick();
 	
 	// Turn on global interrupts
 	sei();
@@ -146,6 +150,11 @@ void play_game(void) {
 	uint8_t characters_into_escape_sequence = 0;
 	uint8_t is_paused = 0;
 	uint32_t time_pause_began = 0;
+	uint32_t joystick_last_moved = 0; // time in ms
+	uint8_t joystick_last_direction = -1;
+	// Time between simulated movements when holding the joystick in a direction
+	uint16_t joystick_hold_delay = 400;
+	uint16_t joystick_change_dir_delay = 200;
 	
 	// Remember the current time as the last time the vehicles and logs were moved.
 	for (int i = 0; i < 5; i++) {
@@ -265,20 +274,28 @@ void play_game(void) {
 		if(button==3 || escape_sequence_char=='D' || serial_input=='L' || serial_input=='l') {
 			// Attempt to move left
 			// Only attempt to move if the game isn't paused
-			if (!is_paused) move_frog_to_left();
-			play_sound_frog_move();
+			if (!is_paused) {
+				move_frog_to_left();
+				play_sound_frog_move();
+			}
 		} else if(button==2 || escape_sequence_char=='A' || serial_input=='U' || serial_input=='u') {
 			// Attempt to move forward
-			if (!is_paused) move_frog_forward();
-			play_sound_frog_move();
+			if (!is_paused) {
+				move_frog_forward();
+				play_sound_frog_move();
+			}
 		} else if(button==1 || escape_sequence_char=='B' || serial_input=='D' || serial_input=='d') {
 			// Attempt to move down
-			if (!is_paused) move_frog_backward();
-			play_sound_frog_move();
+			if (!is_paused) {
+				move_frog_backward();
+				play_sound_frog_move();
+			}
 		} else if(button==0 || escape_sequence_char=='C' || serial_input=='R' || serial_input=='r') {
 			// Attempt to move right
-			if (!is_paused) move_frog_to_right();
-			play_sound_frog_move();
+			if (!is_paused) {
+				move_frog_to_right();
+				play_sound_frog_move();
+			}
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// If we are pausing, store the current time to add to begin_life_time after unpausing
 			if (!is_paused) {
@@ -318,19 +335,51 @@ void play_game(void) {
 			// Avoids registering movement just after game begins
 			if (current_time > last_button_pushed_at + button_hold_delay) {
 				if (button_held_down == 3) {
-					if (!is_paused) move_frog_to_left();
-					play_sound_frog_move();
-					} else if (button_held_down == 2) {
-					if (!is_paused) move_frog_forward();
-					play_sound_frog_move();
-					} else if (button_held_down == 1) {
-					if (!is_paused) move_frog_backward();
-					play_sound_frog_move();
-					} else if (button_held_down == 0) {
-					if (!is_paused) move_frog_to_right();
-					play_sound_frog_move();
+					if (!is_paused) {
+						move_frog_to_left();
+						play_sound_frog_move();
+					}
+				} else if (button_held_down == 2) {
+					if (!is_paused) {
+						move_frog_forward();
+						play_sound_frog_move();
+					}
+				} else if (button_held_down == 1) {
+					if (!is_paused) {
+						move_frog_backward();
+						play_sound_frog_move();
+					}
+				} else if (button_held_down == 0) {
+					if (!is_paused) {
+						move_frog_to_right();
+						play_sound_frog_move();
+					}
 				}
 				last_button_pushed_at = current_time;
+			}
+		}
+		
+		// Deal with joystick movement
+		uint8_t direction;
+		direction = poll_joystick_direction();
+		current_time = get_current_time();
+		
+		if (joystick_last_direction != direction && current_time >= joystick_last_moved + joystick_change_dir_delay) {
+			// Has the joystick direction changed since last time?
+			if (!is_paused) {
+				if (joystick_move(direction)) {
+					play_sound_frog_move();
+					joystick_last_moved = current_time;
+				}
+			}
+			joystick_last_direction = direction;
+		} else if (current_time >= joystick_last_moved + joystick_hold_delay) {
+			// Has the current direction been held for at least joystick_hold_delay ms?
+			if (!is_paused) {
+				if (joystick_move(direction)) {
+					play_sound_frog_move();
+					joystick_last_moved = current_time;
+				}
 			}
 		}
 		

@@ -155,6 +155,12 @@
     <Compile Include="highscores.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="joystick.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="joystick.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ledmatrix.c">
       <SubType>compile</SubType>
     </Compile>

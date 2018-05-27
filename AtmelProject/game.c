@@ -257,6 +257,98 @@ void move_frog_to_right(void) {
 	redraw_frog();
 }
 
+// This function assumes that the frog is not in row 7 (the top row). A frog in row 7 is out
+// of the game.
+void move_frog_up_right(void) {
+	// Redraw the row the frog is currently on (this will remove the frog)
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row+1, frog_column+1);
+	
+	// Move the frog position forward and right and show the frog.
+	// We do this whether the frog is alive or not.
+	frog_row++;
+	frog_column++;
+	redraw_frog();
+
+	// If the frog isn't dead and it has reached a new max row, add 1 to the score
+	if (!frog_dead && frog_row > frog_max_row) {
+		add_to_score(1);
+	}
+	
+	// Update the max row the frog has reached this life
+	frog_max_row = (frog_row >= frog_max_row) ? frog_row : frog_max_row;
+	
+	// If the frog has ended up successfully in row 7 - add it to the riverbank_status flag
+	if(!frog_dead && frog_row == RIVERBANK_ROW) {
+		riverbank_status |= (1<<frog_column);
+	}
+}
+
+// This function assumes that the frog is not in row 7 (the top row). A frog in row 7 is out
+// of the game.
+void move_frog_up_left(void) {
+	// Redraw the row the frog is currently on (this will remove the frog)
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row+1, frog_column-1);
+	
+	// Move the frog position forward and left and show the frog.
+	// We do this whether the frog is alive or not.
+	frog_row++;
+	frog_column--;
+	redraw_frog();
+
+	// If the frog isn't dead and it has reached a new max row, add 1 to the score
+	if (!frog_dead && frog_row > frog_max_row) {
+		add_to_score(1);
+	}
+	
+	// Update the max row the frog has reached this life
+	frog_max_row = (frog_row >= frog_max_row) ? frog_row : frog_max_row;
+	
+	// If the frog has ended up successfully in row 7 - add it to the riverbank_status flag
+	if(!frog_dead && frog_row == RIVERBANK_ROW) {
+		riverbank_status |= (1<<frog_column);
+	}
+}
+
+void move_frog_down_right(void) {
+	// Redraw the row the frog is currently on
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row-1, frog_column+1);
+	
+	// If the frog isn't in the bottom row or the rightmost column,
+	// move the frog position backward and to the right
+	if (frog_row != 0 && frog_column != 15) {
+		frog_row--;
+		frog_column++;
+	}
+	// Show the frog
+	redraw_frog();
+}
+
+void move_frog_down_left(void) {
+	// Redraw the row the frog is currently on
+	redraw_row(frog_row);
+	
+	// Check whether this move will cause the frog to die or not
+	frog_dead = will_frog_die_at_position(frog_row-1, frog_column-1);
+	
+	// If the frog isn't in the bottom row or the leftmost column,
+	// move the frog position backward and to the left
+	if (frog_row != 0 && frog_column != 0) {
+		frog_row--;
+		frog_column--;
+	}
+	// Show the frog
+	redraw_frog();
+}
+
 uint8_t get_frog_row(void) {
 	return frog_row;
 }
