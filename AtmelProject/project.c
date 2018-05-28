@@ -183,7 +183,7 @@ void play_game(void) {
 			// Shift the LED matrix left
 			for (int i = 0; i < MATRIX_NUM_COLUMNS; i++) {
 				ledmatrix_shift_display_left();
-				update_sound_effects();
+				update_sound_effects(0);
 				_delay_ms(70);
 			}
 			// Increment the level number
@@ -202,7 +202,7 @@ void play_game(void) {
 			if (get_lives_remaining() > 1) {
 				play_sound_death();
 				for (int i = 0; i < 10; i++) {
-					update_sound_effects();
+					update_sound_effects(0);
 					_delay_ms(100); // Wait for 1000ms
 				}
 				stop_sound();
@@ -425,7 +425,7 @@ void play_game(void) {
 		display_ssd(time_remaining);
 		
 		// Update the sound effects queue
-		update_sound_effects();
+		update_sound_effects(is_paused);
 	}
 	// We get here if we have run out of lives
 	// The game is over.
@@ -445,7 +445,7 @@ void handle_game_over() {
 	
 	play_sound_game_over();
 	while (is_playing_sound()) {
-		update_sound_effects();
+		update_sound_effects(0);
 	}
 	
 	// If a top 5 score was achieved, prompt the user for their name

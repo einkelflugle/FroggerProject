@@ -13,7 +13,7 @@ void stop_sound(void);
 
 uint8_t is_playing_sound(void);
 
-void update_sound_effects(void);
+void update_sound_effects(uint8_t is_paused);
 
 void play_sound_death(void);
 

@@ -24,6 +24,8 @@ uint16_t sound_queue_durations[SOUND_QUEUE_SIZE];
 uint32_t sound_queue_begin_times[SOUND_QUEUE_SIZE];
 uint8_t sound_queue_length = 0;
 
+uint32_t time_paused = 0;
+
 // For a given frequency (Hz), return the clock period (in terms of the
 // number of clock cycles of a 1MHz clock)
 static uint16_t freq_to_clock_period(uint16_t freq) {
@@ -93,8 +95,29 @@ uint8_t is_playing_sound(void) {
 }
 
 /* Gets called every time the main game loop runs */
-void update_sound_effects(void) {
+void update_sound_effects(uint8_t is_paused) {
 	uint32_t current_time = get_current_time();
+	
+	if (is_paused) {
+		if (!time_paused) {
+			// This is the first time paused, set the time paused
+			time_paused = current_time;
+		} else {
+			// We have been paused for a while
+		}
+		stop_sound();
+		return;
+	} else {
+		if (time_paused) {
+			// We were paused but not any more
+			// Update the sound_queue_begin_times
+			for (int i = 0; i < sound_queue_length; i++) {
+				sound_queue_begin_times[i] = (current_time - time_paused) + sound_queue_begin_times[i];
+			}
+			// Remove time_paused
+			time_paused = 0;
+		}
+	}
 	
 	// Don't play sound if the game is muted (ie. switch 7 is in off position, 0)
 	if ((PIND & 0b10000000) == 0) {
@@ -233,8 +256,6 @@ void play_sound_reached_riverbank(void) {
 	sound_queue_durations[sound_queue_length] = 500;
 	sound_queue_begin_times[sound_queue_length] = get_current_time() + 500;
 	sound_queue_length += 1;
-	
-	update_sound_effects();
 }
 
 void play_sound_frog_move(void) {
