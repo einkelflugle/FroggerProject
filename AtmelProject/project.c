@@ -458,37 +458,65 @@ void handle_game_over() {
 		uint8_t name[10] = {0};
 		uint8_t chars = 0;
 		uint8_t return_pressed = 0; // bool
+		char c, escape_sequence_c;
+		uint8_t chars_into_escape_sequence = 0;
 		
 		move_cursor(13, 3);
 		printf_P(PSTR("Enter name: "));
 		while (!return_pressed) {
-			uint8_t c;
-			scanf_P(PSTR("%c"), &c);
-			// Check for return (enter)
-			if (c == '\n') {
-				if (chars == 0) {
-					continue; // Name can't be blank
+			c = -1;
+			escape_sequence_c = -1;
+			if (serial_input_available()) {
+				// Get the character from stdin
+				c = fgetc(stdin);
+				// Check if the character is part of an escape sequence
+				if(chars_into_escape_sequence == 0 && c == ESCAPE_CHAR) {
+					// We've hit the first character in an escape sequence (escape)
+					chars_into_escape_sequence++;
+					c = -1; // Don't further process this character
+				} else if(chars_into_escape_sequence == 1 && c == '[') {
+					// We've hit the second character in an escape sequence
+					chars_into_escape_sequence++;
+					c = -1; // Don't further process this character
+				} else if(chars_into_escape_sequence == 2) {
+					// Third (and last) character in the escape sequence
+					escape_sequence_c = c;
+					c = -1;  // Don't further process this character - we
+					// deal with it as part of the escape sequence
+					chars_into_escape_sequence = 0;
+				} else {
+					// Character was not part of an escape sequence (or we received
+					// an invalid second character in the sequence). We'll process
+					// the data in the serial_input variable.
+					chars_into_escape_sequence = 0;
 				}
-				return_pressed = 1;
-				continue;
-			}
-			// Check for backspace (ASCII for delete/backspace)
-			if ((c == 8 || c == 127) && chars > 0) {
-				// Clear all input then redraw it with last char removed
-				move_cursor(13 + 12, 3);
-				clear_to_end_of_line();
-				move_cursor(13 + 12, 3);
-				name[chars - 1] = 0;
-				chars--;
-				printf_P(PSTR("%s"), name);
-			}
-			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ') {
-				if (chars == 10) {
+				
+				// Check for return (enter)
+				if (c == '\n') {
+					if (chars == 0) {
+						continue; // Name can't be blank
+					}
+					return_pressed = 1;
 					continue;
 				}
-				printf_P(PSTR("%c"), c);
-				name[chars] = c;
-				chars++;
+				// Check for backspace (ASCII for delete/backspace)
+				if ((c == 8 || c == 127 || escape_sequence_c == 'D') && chars > 0) {
+					// Clear all input then redraw it with last char removed
+					move_cursor(13 + 12, 3);
+					clear_to_end_of_line();
+					move_cursor(13 + 12, 3);
+					name[chars - 1] = 0;
+					chars--;
+					printf_P(PSTR("%s"), name);
+				}
+				if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ') {
+					if (chars == 10) {
+						continue;
+					}
+					printf_P(PSTR("%c"), c);
+					name[chars] = c;
+					chars++;
+				}
 			}
 		}
 		// Save name and score to EEPROM
