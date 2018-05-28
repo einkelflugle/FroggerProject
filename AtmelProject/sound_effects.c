@@ -96,6 +96,12 @@ uint8_t is_playing_sound(void) {
 void update_sound_effects(void) {
 	uint32_t current_time = get_current_time();
 	
+	// Don't play sound if the game is muted (ie. switch 7 is in off position, 0)
+	if ((PIND & 0b10000000) == 0) {
+		stop_sound();
+		return;
+	}
+	
 	if (sound_queue_length == 0) {
 		// No sounds are scheduled to be played, turn off the buzzer
 		stop_sound();
