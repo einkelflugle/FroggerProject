@@ -141,10 +141,8 @@ static uint8_t get_level_data_index(void);
 static uint8_t will_frog_die_at_position(int8_t row, int8_t column);
 static void redraw_whole_display(void);
 static void redraw_row(uint8_t row);
-static void redraw_roadside(uint8_t row);
 static void redraw_traffic_lane(uint8_t lane);
 static void redraw_river_channel(uint8_t channel);
-static void redraw_riverbank(void);
 static void redraw_frog(void);
 		
 /////////////////////////////// Public Functions ///////////////////////////////
@@ -585,7 +583,7 @@ static void redraw_row(uint8_t row) {
 
 
 // Redraw the given roadside row (0 or 4). The frog is not redrawn.
-static void redraw_roadside(uint8_t row) {
+void redraw_roadside(uint8_t row) {
 	MatrixRow row_display_data;
 	uint8_t i;
 	for(i=0;i<=15;i++) {
@@ -635,7 +633,7 @@ static void redraw_river_channel(uint8_t channel) {
 
 // Redraw the riverbank (top row). Previous frogs which have made it to a hole
 // at the top are shown.
-static void redraw_riverbank(void) {
+void redraw_riverbank(void) {
 	MatrixRow row_display_data;
 	uint8_t i;
 	// Blank out spaces in our rowdata where there are holes in the riverbank

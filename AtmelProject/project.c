@@ -215,8 +215,12 @@ void play_game(void) {
 				move_cursor(10,15);
 				clear_to_end_of_line();
 				
-				// Reset the game state (puts new frog at start position)
-				initialise_game();
+				// Avoids dead frog lingering on roadside/riverbank
+				redraw_roadside(0);
+				redraw_roadside(4);
+				redraw_riverbank();
+				// Put new frog at start position
+				put_frog_in_start_position();
 				
 				// Reset begin_life_time
 				begin_life_time = get_current_time();

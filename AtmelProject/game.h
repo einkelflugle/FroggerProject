@@ -29,6 +29,9 @@ void initialise_game(void);
 // successfully to the other side.)
 void put_frog_in_start_position(void);
 
+void redraw_roadside(uint8_t row);
+void redraw_riverbank(void);
+
 /////////////////////////////////// MOVE FUNCTIONS /////////////////////////
 // is_frog_dead() should be checked after calling one of these to see
 // if the move succeeded or not
