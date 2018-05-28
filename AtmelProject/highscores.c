@@ -150,7 +150,7 @@ void draw_high_scores(uint8_t x, uint8_t y) {
 		eeprom_read_block((void*) &names[3], (const void*) &name_four, 10);
 		slots_used++;
 	}
-	if (eeprom_read_byte(&signature_one) == SIGNATURE) {
+	if (eeprom_read_byte(&signature_five) == SIGNATURE) {
 		scores[4] = eeprom_read_word(&score_five);
 		eeprom_read_block((void*) &names[4], (const void*) &name_five, 10);
 		slots_used++;
