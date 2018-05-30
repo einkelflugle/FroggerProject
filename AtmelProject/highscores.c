@@ -18,22 +18,22 @@
 uint8_t EEMEM main_signature;
 uint8_t EEMEM signature_one;
 uint16_t EEMEM score_one;
-uint8_t EEMEM name_one[10];
+char EEMEM name_one[11];
 uint8_t EEMEM signature_two;
 uint16_t EEMEM score_two;
-uint8_t EEMEM name_two[10];
+char EEMEM name_two[11];
 uint8_t EEMEM signature_three;
 uint16_t EEMEM score_three;
-uint8_t EEMEM name_three[10];
+char EEMEM name_three[11];
 uint8_t EEMEM signature_four;
 uint16_t EEMEM score_four;
-uint8_t EEMEM name_four[10];
+char EEMEM name_four[11];
 uint8_t EEMEM signature_five;
 uint16_t EEMEM score_five;
-uint8_t EEMEM name_five[10];
+char EEMEM name_five[11];
 
 uint16_t scores[5];
-uint8_t names[5][10];
+char names[5][11];
 uint8_t slots_used;
 
 uint8_t is_high_score(uint16_t score) {
@@ -49,31 +49,31 @@ void save_high_score(uint16_t score, uint8_t *name) {
 			// Slot one is free, write to it
 			eeprom_write_byte(&signature_one, SIGNATURE);
 			eeprom_write_word(&score_one, score);
-			eeprom_write_block(name, &name_one, 10);
+			eeprom_write_block(name, &name_one, 11);
 			return;
 		}
 		if (eeprom_read_byte(&signature_two) != SIGNATURE) {
 			eeprom_write_byte(&signature_two, SIGNATURE);
 			eeprom_write_word(&score_two, score);
-			eeprom_write_block(name, &name_two, 10);
+			eeprom_write_block(name, &name_two, 11);
 			return;
 		}
 		if (eeprom_read_byte(&signature_three) != SIGNATURE) {
 			eeprom_write_byte(&signature_three, SIGNATURE);
 			eeprom_write_word(&score_three, score);
-			eeprom_write_block(name, &name_three, 10);
+			eeprom_write_block(name, &name_three, 11);
 			return;
 		}
 		if (eeprom_read_byte(&signature_four) != SIGNATURE) {
 			eeprom_write_byte(&signature_four, SIGNATURE);
 			eeprom_write_word(&score_four, score);
-			eeprom_write_block(name, &name_four, 10);
+			eeprom_write_block(name, &name_four, 11);
 			return;
 		}
 		if (eeprom_read_byte(&signature_five) != SIGNATURE) {
 			eeprom_write_byte(&signature_five, SIGNATURE);
 			eeprom_write_word(&score_five, score);
-			eeprom_write_block(name, &name_five, 10);
+			eeprom_write_block(name, &name_five, 11);
 			return;
 		}
 	} else {
@@ -86,27 +86,27 @@ void save_high_score(uint16_t score, uint8_t *name) {
 		if (eeprom_read_word(&score_one) == lowest_score) {
 			// Score in slot one is the lowest score, replace it
 			eeprom_write_word(&score_one, score);
-			eeprom_write_block(name, &name_one, 10);
+			eeprom_write_block(name, &name_one, 11);
 			return;
 		}
 		if (eeprom_read_word(&score_two) == lowest_score) {
 			eeprom_write_word(&score_two, score);
-			eeprom_write_block(name, &name_two, 10);
+			eeprom_write_block(name, &name_two, 11);
 			return;
 		}
 		if (eeprom_read_word(&score_three) == lowest_score) {
 			eeprom_write_word(&score_three, score);
-			eeprom_write_block(name, &name_three, 10);
+			eeprom_write_block(name, &name_three, 11);
 			return;
 		}
 		if (eeprom_read_word(&score_four) == lowest_score) {
 			eeprom_write_word(&score_four, score);
-			eeprom_write_block(name, &name_four, 10);
+			eeprom_write_block(name, &name_four, 11);
 			return;
 		}
 		if (eeprom_read_word(&score_five) == lowest_score) {
 			eeprom_write_word(&score_five, score);
-			eeprom_write_block(name, &name_five, 10);
+			eeprom_write_block(name, &name_five, 11);
 			return;
 		}
 	}
@@ -132,27 +132,27 @@ void draw_high_scores(uint8_t x, uint8_t y) {
 	// Check for signature
 	if (eeprom_read_byte(&signature_one) == SIGNATURE) {
 		scores[0] = eeprom_read_word(&score_one);
-		eeprom_read_block((void*) &names[0], (const void*) &name_one, 10);
+		eeprom_read_block((void*) &names[0], (const void*) &name_one, 11);
 		slots_used++;
 	}
 	if (eeprom_read_byte(&signature_two) == SIGNATURE) {
 		scores[1] = eeprom_read_word(&score_two);
-		eeprom_read_block((void*) &names[1], (const void*) &name_two, 10);
+		eeprom_read_block((void*) &names[1], (const void*) &name_two, 11);
 		slots_used++;
 	}
 	if (eeprom_read_byte(&signature_three) == SIGNATURE) {
 		scores[2] = eeprom_read_word(&score_three);
-		eeprom_read_block((void*) &names[2], (const void*) &name_three, 10);
+		eeprom_read_block((void*) &names[2], (const void*) &name_three, 11);
 		slots_used++;
 	}
 	if (eeprom_read_byte(&signature_four) == SIGNATURE) {
 		scores[3] = eeprom_read_word(&score_four);
-		eeprom_read_block((void*) &names[3], (const void*) &name_four, 10);
+		eeprom_read_block((void*) &names[3], (const void*) &name_four, 11);
 		slots_used++;
 	}
 	if (eeprom_read_byte(&signature_five) == SIGNATURE) {
 		scores[4] = eeprom_read_word(&score_five);
-		eeprom_read_block((void*) &names[4], (const void*) &name_five, 10);
+		eeprom_read_block((void*) &names[4], (const void*) &name_five, 11);
 		slots_used++;
 	}
 	

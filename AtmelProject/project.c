@@ -452,7 +452,7 @@ void handle_game_over() {
 	// If a top 5 score was achieved, prompt the user for their name
 	uint16_t score_achieved = get_score();
 	if (is_high_score(score_achieved)) {
-		uint8_t name[10] = {0};
+		uint8_t name[11] = {0};
 		uint8_t chars = 0;
 		uint8_t return_pressed = 0; // bool
 		char c, escape_sequence_c;
