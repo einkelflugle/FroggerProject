@@ -119,12 +119,6 @@ void update_sound_effects(uint8_t is_paused) {
 		}
 	}
 	
-	// Don't play sound if the game is muted (ie. switch 7 is in off position, 0)
-	if ((PIND & 0b10000000) == 0) {
-		stop_sound();
-		return;
-	}
-	
 	if (sound_queue_length == 0) {
 		// No sounds are scheduled to be played, turn off the buzzer
 		stop_sound();
