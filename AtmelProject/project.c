@@ -448,9 +448,6 @@ void handle_game_over() {
 	set_display_attribute(TERM_RESET);
 	
 	play_sound_game_over();
-	while (is_playing_sound()) {
-		update_sound_effects(0);
-	}
 	
 	// If a top 5 score was achieved, prompt the user for their name
 	uint16_t score_achieved = get_score();
@@ -466,6 +463,7 @@ void handle_game_over() {
 		while (!return_pressed) {
 			c = -1;
 			escape_sequence_c = -1;
+			update_sound_effects(0);
 			if (serial_input_available()) {
 				// Get the character from stdin
 				c = fgetc(stdin);
@@ -532,7 +530,7 @@ void handle_game_over() {
 	move_cursor(13,4);
 	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == NO_BUTTON_PUSHED) {
-		; // wait
+		update_sound_effects(0); // and wait
 	}
 	
 }
