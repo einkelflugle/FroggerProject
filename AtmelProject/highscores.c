@@ -183,10 +183,16 @@ void draw_high_scores(uint8_t x, uint8_t y) {
 			}
 		}
 	}
-
-	// Display the names and scores to the high scores area
-	for (int i = 0; i < slots_used; i++) {
-		move_cursor(x, y + 2 + i);
-		printf_P(PSTR("%d. %d - %s"), i + 1, scores[i], names[i]);
+	
+	if (slots_used == 0) {
+		// Main sig exists but no scores present
+		move_cursor(x, y + 2);
+		printf_P(PSTR("%s"), "No high scores yet.");
+	} else {
+		// Display the names and scores to the high scores area
+		for (int i = 0; i < slots_used; i++) {
+			move_cursor(x, y + 2 + i);
+			printf_P(PSTR("%d. %d - %s"), i + 1, scores[i], names[i]);
+		}
 	}
 }
